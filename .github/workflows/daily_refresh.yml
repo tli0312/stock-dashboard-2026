@@ -1,0 +1,49 @@
+name: 📈 Daily Stock Data Refresh
+
+on:
+  # Runs Mon–Fri at 9:30 PM UTC (= 4:30 PM ET, right after US market close)
+  schedule:
+    - cron: '30 21 * * 1-5'
+
+  # Allow manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+
+env:
+  # Opt into Node.js 24 to suppress deprecation warnings
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit the updated HTML back
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance
+
+      - name: Run data refresh
+        run: python "2026股票大赛/update_data.py"
+
+      - name: Commit updated dashboard
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage both files; data_snapshot.json may not exist on first run so allow failure
+          git add "2026股票大赛/stock_dashboard.html" || true
+          git add "2026股票大赛/data_snapshot.json"   || true
+          # Only commit if there are staged changes
+          git diff --cached --quiet \
+            && echo "⏭  No changes to commit" \
+            || git commit -m "📈 Auto-refresh stock data $(date -u +%Y-%m-%d)"
+
+      - name: Push changes
+        run: git push
