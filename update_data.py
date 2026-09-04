@@ -25,19 +25,19 @@ except ImportError:
 
 # ── Stock definitions ──────────────────────────────────────────────────────
 STOCKS_META = [
-    {"ticker": "CRCL", "name": "Circle Internet Group", "start": 79.30,   "sector": "Fintech",        "reason": "Strong Q4 earnings, AI Agent payment, USD Safety factor"},
-    {"ticker": "MU",   "name": "Micron Technology",     "start": 285.41,  "sector": "Semiconductors", "reason": "AI memory demand fuels growth"},
-    {"ticker": "ASML", "name": "ASML Holding NV",       "start": 1069.86, "sector": "Semiconductors", "reason": "Monopoly on essential chip tools"},
-    {"ticker": "RTX",  "name": "RTX Corp",              "start": 183.40,  "sector": "Defense",        "reason": "Large defense contract backlog"},
-    {"ticker": "GLDM", "name": "SPDR Gold MiniShares",  "start": 85.37,   "sector": "Commodity ETF",  "reason": "Investor gold safe-haven rush"},
-    {"ticker": "RKLB", "name": "Rocket Lab",            "start": 69.76,   "sector": "Aerospace",      "reason": "Space & defense contracts growth"},
-    {"ticker": "COPX", "name": "Global X Copper Miners","start": 71.79,   "sector": "Mining ETF",     "reason": "Soaring global copper demand"},
-    {"ticker": "AMD",  "name": "Advanced Micro Devices","start": 214.16,  "sector": "Semiconductors", "reason": "Gaining AI chip market"},
-    {"ticker": "NVDA", "name": "NVIDIA Corp",           "start": 186.50,  "sector": "Semiconductors", "reason": "GPUs critical for AI"},
-    {"ticker": "VKTX", "name": "Viking Therapeutics",   "start": 35.18,   "sector": "Biotech",        "reason": "Clinical trial volatility risk"},
-    {"ticker": "AVGO", "name": "Broadcom Inc",          "start": 346.10,  "sector": "Semiconductors", "reason": "Integration challenges, network softness"},
-    {"ticker": "PLTR", "name": "Palantir Technologies", "start": 177.75,  "sector": "AI/Data",        "reason": "Valuation concerns, contract slowdown"},
-    {"ticker": "TSLA", "name": "Tesla Inc",             "start": 449.72,  "sector": "EV/Auto",        "reason": "EV price cuts, competition"},
+    {"ticker": "CRCL", "name": "Circle Internet Group", "start": 79.30,   "sector": "Fintech",        "reason": "Volatile first half: Feb peak +67% faded to a mid-year dip of −36%; recovered to +30% on renewed stablecoin momentum"},
+    {"ticker": "MU",   "name": "Micron Technology",     "start": 285.41,  "sector": "Semiconductors", "reason": "YTD leader: HBM / AI memory supercycle, price rose 3.4x, peaked +325% in July before a ~21% pullback"},
+    {"ticker": "ASML", "name": "ASML Holding NV",       "start": 1069.86, "sector": "Semiconductors", "reason": "Steady AI-capex climb with a May peak at +86%; eased to +54% after the July high"},
+    {"ticker": "RTX",  "name": "RTX Corp",              "start": 183.40,  "sector": "Defense",        "reason": "Defense backlog supports a gradual grind higher, +22% by May, held above +10% since"},
+    {"ticker": "GLDM", "name": "SPDR Gold MiniShares",  "start": 85.37,   "sector": "Commodity ETF",  "reason": "Gold hit a mid-year record (+25%) then gave back most gains; now only +4% YTD"},
+    {"ticker": "RKLB", "name": "Rocket Lab",            "start": 69.76,   "sector": "Aerospace",      "reason": "Parabolic spring run to +115% collapsed; faded from +140% to below year start"},
+    {"ticker": "COPX", "name": "Global X Copper Miners","start": 71.79,   "sector": "Mining ETF",     "reason": "Jan–Feb copper rout (−13%) fully reversed on grid/AI demand, now +27% YTD"},
+    {"ticker": "AMD",  "name": "Advanced Micro Devices","start": 214.16,  "sector": "Semiconductors", "reason": "AI datacenter momentum drove a May high of +171%; profit-taking cut it to +113%"},
+    {"ticker": "NVDA", "name": "NVIDIA Corp",           "start": 186.50,  "sector": "Semiconductors", "reason": "Quietly outperformed: Feb dip −12% recovered into a late-July ATH, +22% YTD"},
+    {"ticker": "VKTX", "name": "Viking Therapeutics",   "start": 35.18,   "sector": "Biotech",        "reason": "Trial-driven rollercoaster: −22% in February, +15% in March, now back near year start"},
+    {"ticker": "AVGO", "name": "Broadcom Inc",          "start": 346.10,  "sector": "Semiconductors", "reason": "Wildly volatile AI trade: +39% by April, −16% by May, settled +3% above start"},
+    {"ticker": "PLTR", "name": "Palantir Technologies", "start": 177.75,  "sector": "AI/Data",        "reason": "Deep March selloff to −40% mostly recovered; +3% YTD but far below its spring highs"},
+    {"ticker": "TSLA", "name": "Tesla Inc",             "start": 449.72,  "sector": "EV/Auto",        "reason": "Weak year: early Q1 slide to −23%, partial recovery, still 16% below year start"},
 ]
 BENCHMARK_META = {"ticker": "VOO", "name": "Vanguard S&P 500", "start": 627.13, "sector": "ETF"}
 
@@ -120,13 +120,12 @@ def inject_into_html(data):
         lambda m: m.group(1) + bench_js + m.group(2),
         new_html, flags=re.DOTALL
     )
-    # Update the as-of date string in the header
+    # Update footer date (As of <span id="fdate">YYYY-MM-DD</span>)
     new_html = re.sub(
-        r'(As of <strong[^>]*>)\d{4}-\d{2}-\d{2}(</strong>)',
+        r'(As of <span id="fdate">)\d{4}-\d{2}-\d{2}(</span>)',
         rf'\g<1>{as_of}\g<2>',
         new_html
     )
-    # Update footer date
     new_html = re.sub(
         r'(last updated )\d{4}-\d{2}-\d{2}',
         rf'\g<1>{as_of}',
